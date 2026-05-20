@@ -43,28 +43,37 @@ public:
     }
 
     void addDataToFile() {
+    // Check whether file exists
+    ifstream checkFile("students.csv");
 
-        ifstream checkFile("students.csv");
-        bool isEmpty = checkFile.peek() == ifstream::traits_type::eof();
-        checkFile.close();
+    bool fileExists = checkFile.good();
+    bool isEmpty = false;
 
-        ofstream outfile("students.csv", ios::app);
-
-        // Add header if file is empty
-        if (isEmpty) {
-            outfile << "RegistrationNumber,Name,ContactNumber,Address,Email\n";
-        }
-
-        outfile << registrationNumber << ","
-                << name << ","
-                << contactNumber << ","
-                << address << ","
-                << email << endl;
-
-        outfile.close();
-
-        cout << "Student data added successfully!" << endl;
+    if (fileExists) {
+        isEmpty = (checkFile.peek() == ifstream::traits_type::eof());
     }
+
+    checkFile.close();
+
+    ofstream outfile("students.csv", ios::app);
+
+    // Add header only if file is new or empty
+    if (!fileExists || isEmpty) {
+
+        outfile << "RegistrationNumber,Name,ContactNumber,Address,Email\n";
+    }
+
+    // Add student data
+    outfile << registrationNumber << ","
+            << name << ","
+            << contactNumber << ","
+            << address << ","
+            << email << endl;
+
+    outfile.close();
+
+    cout << "Student data added successfully!" << endl;
+}
 
     void displayFileData() {
         ifstream infile("students.csv");
