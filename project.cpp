@@ -67,33 +67,40 @@ public:
     }
 
     void displayFileData() {
-
         ifstream infile("students.csv");
         string line;
-
-        cout << "-------------------------------------------------------------------------------------------------------------\n";
-        cout << "| Registration Number | Name                 | Contact Number | Address              | Email               |\n";
-        cout << "-------------------------------------------------------------------------------------------------------------\n";
-
-        // Skip header
-        getline(infile, line);
-
-        while (getline(infile, line)) {
-
-            stringstream ss(line);
-            string token;
-
-            cout << "| ";
-
-            while (getline(ss, token, ',')) {
-                cout << setw(20) << left << token << " | ";
-            }
-
-            cout << endl;
+        if (!infile) {
+            cout << "Error opening file!" << endl;
+            return;
         }
-
-        cout << "-------------------------------------------------------------------------------------------------------------\n";
-
+        cout << "\n====================================================================================================================\n";
+        cout<< left
+            << setw(20) << "Registration No"
+            << setw(25) << "Name"
+            << setw(18) << "Contact Number"
+            << setw(25) << "Address"
+            << setw(30) << "Email" << endl;
+        cout << "====================================================================================================================\n";
+        // Skip CSV header
+        getline(infile, line);
+        // Read data rows
+        while (getline(infile, line)) {
+            stringstream ss(line);
+            string regNo, studentName, contact, addr, mail;
+            getline(ss, regNo, ',');
+            getline(ss, studentName, ',');
+            getline(ss, contact, ',');
+            getline(ss, addr, ',');
+            getline(ss, mail, ',');
+            
+            cout<< left
+                << setw(20) << regNo
+                << setw(25) << studentName
+                << setw(18) << contact
+                << setw(25) << addr
+                << setw(30) << mail << endl;
+        }
+        cout << "====================================================================================================================\n";
         infile.close();
     }
 
