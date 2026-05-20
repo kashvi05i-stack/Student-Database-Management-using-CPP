@@ -43,82 +43,139 @@ public:
     }
 
     void addDataToFile() {
-        ofstream outfile("Example.txt", ios::app);
-        outfile << registrationNumber << "\t"
-                << name << "\t"
-                << contactNumber << "\t"
-                << address << "\t"
+
+        ifstream checkFile("students.csv");
+        bool isEmpty = checkFile.peek() == ifstream::traits_type::eof();
+        checkFile.close();
+
+        ofstream outfile("students.csv", ios::app);
+
+        // Add header if file is empty
+        if (isEmpty) {
+            outfile << "RegistrationNumber,Name,ContactNumber,Address,Email\n";
+        }
+
+        outfile << registrationNumber << ","
+                << name << ","
+                << contactNumber << ","
+                << address << ","
                 << email << endl;
+
         outfile.close();
+
+        cout << "Student data added successfully!" << endl;
     }
 
     void displayFileData() {
-        ifstream infile("Example.txt");
+
+        ifstream infile("students.csv");
         string line;
 
-        cout << "--------------------------------------------------------------------------------------------------\n";
-        cout << "| Registration Number | Name                 | Contact Number     | Address              | Email |\n";
-        cout << "--------------------------------------------------------------------------------------------------\n";
+        cout << "-------------------------------------------------------------------------------------------------------------\n";
+        cout << "| Registration Number | Name                 | Contact Number | Address              | Email               |\n";
+        cout << "-------------------------------------------------------------------------------------------------------------\n";
+
+        // Skip header
+        getline(infile, line);
 
         while (getline(infile, line)) {
+
             stringstream ss(line);
             string token;
 
             cout << "| ";
-            while (getline(ss, token, '\t')) {
+
+            while (getline(ss, token, ',')) {
                 cout << setw(20) << left << token << " | ";
             }
+
             cout << endl;
         }
 
-        cout << "---------------------------------------------------------------------------------------------\n";
+        cout << "-------------------------------------------------------------------------------------------------------------\n";
+
         infile.close();
     }
 
     void searchStudent(const string& regNumber) {
-        ifstream infile("Example.txt");
+
+        ifstream infile("students.csv");
         string line;
 
+        // Skip header
+        getline(infile, line);
+
         while (getline(infile, line)) {
+
             stringstream ss(line);
             string token;
-            getline(ss, token, '\t'); // registration number
+
+            getline(ss, token, ',');
 
             if (token == regNumber) {
-                cout << "Student Found!" << endl;
-                cout << "Details:" << endl;
-                cout << line << endl;
+
+                string name, contact, address, email;
+
+                getline(ss, name, ',');
+                getline(ss, contact, ',');
+                getline(ss, address, ',');
+                getline(ss, email, ',');
+
+                cout << "\nStudent Found!" << endl;
+                cout << "----------------------------------\n";
+                cout << "Registration Number: " << token << endl;
+                cout << "Name: " << name << endl;
+                cout << "Contact Number: " << contact << endl;
+                cout << "Address: " << address << endl;
+                cout << "Email: " << email << endl;
+                cout << "----------------------------------\n";
+
                 infile.close();
                 return;
             }
         }
 
         cout << "Student with registration number " << regNumber << " not found!" << endl;
+
         infile.close();
     }
 
     void updateStudent(const string& regNumber) {
-        ifstream infile("Example.txt");
-        ofstream tempfile("temp.txt");
+
+        ifstream infile("students.csv");
+        ofstream tempfile("temp.csv");
+
         string line;
         bool found = false;
 
+        // Copy header
+        getline(infile, line);
+        tempfile << line << endl;
+
         while (getline(infile, line)) {
+
             stringstream ss(line);
             string token;
-            getline(ss, token, '\t');
+
+            getline(ss, token, ',');
 
             if (token == regNumber) {
+
                 cout << "Student Found!" << endl;
-                cout << "Update Details:" << endl;
+                cout << "Enter Updated Details:\n";
+
                 inputDetails();
-                tempfile << registrationNumber << "\t"
-                         << name << "\t"
-                         << contactNumber << "\t"
-                         << address << "\t"
+
+                tempfile << registrationNumber << ","
+                         << name << ","
+                         << contactNumber << ","
+                         << address << ","
                          << email << endl;
+
                 found = true;
+
             } else {
+
                 tempfile << line << endl;
             }
         }
@@ -127,30 +184,48 @@ public:
         tempfile.close();
 
         if (found) {
-            remove("Example.txt");
-            rename("temp.txt", "Example.txt");
+
+            remove("students.csv");
+            rename("temp.csv", "students.csv");
+
             cout << "Student details updated successfully!" << endl;
+
         } else {
-            cout << "Student with registration number " << regNumber << " not found!" << endl;
+
+            cout << "Student with registration number "
+                 << regNumber
+                 << " not found!" << endl;
         }
     }
 
     void deleteStudent(const string& regNumber) {
-        ifstream infile("Example.txt");
-        ofstream tempfile("temp.txt");
+
+        ifstream infile("students.csv");
+        ofstream tempfile("temp.csv");
+
         string line;
         bool found = false;
 
+        // Copy header
+        getline(infile, line);
+        tempfile << line << endl;
+
         while (getline(infile, line)) {
+
             stringstream ss(line);
             string token;
-            getline(ss, token, '\t');
+
+            getline(ss, token, ',');
 
             if (token == regNumber) {
+
                 cout << "Student Found!" << endl;
-                cout << "Student details deleted." << endl;
+                cout << "Student details deleted successfully!" << endl;
+
                 found = true;
+
             } else {
+
                 tempfile << line << endl;
             }
         }
@@ -159,68 +234,97 @@ public:
         tempfile.close();
 
         if (found) {
-            remove("Example.txt");
-            rename("temp.txt", "Example.txt");
+
+            remove("students.csv");
+            rename("temp.csv", "students.csv");
+
         } else {
-            cout << "Student with registration number " << regNumber << " not found!" << endl;
+
+            cout << "Student with registration number "
+                 << regNumber
+                 << " not found!" << endl;
         }
     }
 };
 
 int main() {
+
     int option;
     Student student;
 
     do {
-        cout << "\nAvailable operations:\n";
+
+        cout << "\n========== STUDENT DATABASE MANAGEMENT SYSTEM ==========\n";
+
         cout << "1. Add New Student\n";
         cout << "2. Display Student Details\n";
         cout << "3. Search Student\n";
         cout << "4. Update Student\n";
         cout << "5. Delete Student\n";
         cout << "6. Exit\n";
+
         cout << "Enter your choice: ";
         cin >> option;
 
         switch (option) {
+
         case 1:
+
             student.inputDetails();
             student.addDataToFile();
+
             break;
 
         case 2:
+
             student.displayFileData();
+
             break;
 
         case 3: {
+
             string regNumber;
+
             cout << "Enter the registration number of the student: ";
             cin >> regNumber;
+
             student.searchStudent(regNumber);
+
             break;
         }
 
         case 4: {
+
             string regNumber;
+
             cout << "Enter the registration number of the student to update: ";
             cin >> regNumber;
+
             student.updateStudent(regNumber);
+
             break;
         }
 
         case 5: {
+
             string regNumber;
+
             cout << "Enter the registration number of the student to delete: ";
             cin >> regNumber;
+
             student.deleteStudent(regNumber);
+
             break;
         }
 
         case 6:
+
             cout << "Exiting program...\n";
+
             break;
 
         default:
+
             cout << "Invalid option. Please try again.\n";
         }
 
